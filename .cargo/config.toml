@@ -1,0 +1,20 @@
+[target.thumbv6m-none-eabi]
+runner = "probe-rs run --chip STM32F051R8Tx"
+
+[build]
+target = "thumbv6m-none-eabi"
+
+[target.'cfg(all(target_arch = "arm", target_os = "none"))']
+rustflags = [
+    "-C", "link-arg=-Tlink.x",
+    "-C", "link-arg=-Tdefmt.x",
+    "--cfg", "portable_atomic_unsafe_assume_single_core",
+]
+
+[env]
+DEFMT_LOG = "info"
+
+[alias]
+firmware = "run -p app_firmware --release"
+fw-check = "check -p app_firmware --target thumbv6m-none-eabi"
+host-test = "test -p app_core --target x86_64-pc-windows-msvc"
