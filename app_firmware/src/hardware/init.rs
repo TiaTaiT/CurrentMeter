@@ -1,12 +1,29 @@
 // File: /app_firmware/src/hardware/init.rs
 
 use defmt::info;
-use embassy_stm32::{Config, gpio::{Level, Output, Speed}, rcc::{AHBPrescaler, Sysclk}};
+use embassy_stm32::{
+    Config,
+    adc::{self, Adc, AdcChannel},
+    bind_interrupts,
+    dma,
+    gpio::{Level, Output, Speed},
+    peripherals::ADC1,
+    rcc::{AHBPrescaler, Sysclk},
+    usart
+};
 
-use crate::hardware::StatusLeds;
-    
+use crate::hardware::{StatusLeds, SystemSensor};
+
+bind_interrupts!(struct Irqs {
+    ADC1_COMP => adc::InterruptHandler<ADC1>;
+    USART1    => usart::InterruptHandler<embassy_stm32::peripherals::USART1>;
+    DMA1_CHANNEL2_3 => dma::InterruptHandler<embassy_stm32::peripherals::DMA1_CH2>, dma::InterruptHandler<embassy_stm32::peripherals::DMA1_CH3>;
+    DMA1_CHANNEL4_5_6_7 => dma::InterruptHandler<embassy_stm32::peripherals::DMA1_CH4>, dma::InterruptHandler<embassy_stm32::peripherals::DMA1_CH5>;
+});
+
 pub struct Hardware {
     pub leds: StatusLeds,
+    pub sensors: SystemSensor,
 }
 
 pub fn init() -> Hardware {
@@ -32,7 +49,14 @@ pub fn init() -> Hardware {
         sys_led: Output::new(p.PB12, Level::Low, Speed::Low),
     };
 
+    let adc = Adc::new(p.ADC1, Irqs);
+    let sensors = SystemSensor {
+        currents: [p.PA4.degrade_adc(), p.PA5.degrade_adc(), p.PA6.degrade_adc(), p.PA7.degrade_adc()],
+        voltages: [p.PA2.degrade_adc(), p.PA3.degrade_adc(), p.PB0.degrade_adc(), p.PB1.degrade_adc()],
+        adc,
+    };
     Hardware {
         leds,
+        sensors,
     }
 }
