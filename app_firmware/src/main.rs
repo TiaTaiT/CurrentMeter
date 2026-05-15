@@ -4,26 +4,31 @@
 
 mod hardware;
 
+use defmt::info;
+use app_core::hardware_traits::PowerState;
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
-use defmt::*;
 use defmt_rtt as _;
 use panic_halt as _;
 
-use crate::hardware::init::Hardware;
+use crate::hardware::{Hardware, StatusLeds};
 
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
     // 1. Initialize new Hardware struct
-    let mut hw: Hardware = hardware::init::init();
+    let hw: Hardware = hardware::init();
+    let leds = hw.leds;
 
-    spawner.spawn(task1().unwrap());
+    spawner.spawn(task1(leds).unwrap());
 }
 
 #[embassy_executor::task]
-async fn task1() {
+async fn task1(mut leds: StatusLeds) {
     loop {
         info!("Hello from task1!");
+        leds.set_sys_led(PowerState::On);
+        Timer::after(Duration::from_millis(200)).await;
+        leds.set_sys_led(PowerState::Off);
         Timer::after(Duration::from_secs(1)).await;
     }
 }

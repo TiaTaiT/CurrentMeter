@@ -1,9 +1,12 @@
 // File: /app_firmware/src/hardware/init.rs
 
 use defmt::info;
-use embassy_stm32::{Config, rcc::{AHBPrescaler, Sysclk}};
+use embassy_stm32::{Config, gpio::{Level, Output, Speed}, rcc::{AHBPrescaler, Sysclk}};
 
+use crate::hardware::StatusLeds;
+    
 pub struct Hardware {
+    pub leds: StatusLeds,
 }
 
 pub fn init() -> Hardware {
@@ -25,6 +28,11 @@ pub fn init() -> Hardware {
     // We can keep your constant here strictly for logging.
     info!("Hardware initialized!");
 
+    let leds = StatusLeds {
+        sys_led: Output::new(p.PB12, Level::Low, Speed::Low),
+    };
+
     Hardware {
+        leds,
     }
 }
