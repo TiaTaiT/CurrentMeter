@@ -2,3 +2,4 @@
 #![cfg_attr(not(test), no_std)]
 
 pub mod hardware_traits;
+pub mod adc_converter;
