@@ -1,5 +1,6 @@
+# File: .cargo/config.toml
 [target.thumbv6m-none-eabi]
-runner = "probe-rs run --chip STM32F051R8Tx"
+runner = "probe-rs run --chip STM32L052C8"
 
 [build]
 target = "thumbv6m-none-eabi"

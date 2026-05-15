@@ -1,43 +1,29 @@
+// File: /app_firmware/src/main.rs
 #![no_std]
 #![no_main]
 
-use app_core::{CurrentMeter, MeterConfig};
+mod hardware;
+
 use embassy_executor::Spawner;
-use embassy_stm32::Config;
 use embassy_time::{Duration, Timer};
 use defmt::*;
 use defmt_rtt as _;
 use panic_halt as _;
 
-critical_section::set_impl!(CriticalSectionImpl);
-
-struct CriticalSectionImpl;
-
-unsafe impl critical_section::Impl for CriticalSectionImpl {
-    unsafe fn acquire() -> critical_section::RawRestoreState {
-        cortex_m::interrupt::disable();
-        0
-    }
-
-    unsafe fn release(_token: critical_section::RawRestoreState) {
-        unsafe { cortex_m::interrupt::enable() };
-    }
-}
+use crate::hardware::init::Hardware;
 
 #[embassy_executor::main]
-async fn main(_spawner: Spawner) {
-    let p = embassy_stm32::init(Config::default());
-    let _ = p;
+async fn main(spawner: Spawner) {
+    // 1. Initialize new Hardware struct
+    let mut hw: Hardware = hardware::init::init();
 
-    let meter = CurrentMeter::new(MeterConfig {
-        offset_milliamps: 0,
-        scale_microamps_per_lsb: 805,
-    });
+    spawner.spawn(task1().unwrap());
+}
 
+#[embassy_executor::task]
+async fn task1() {
     loop {
-        let raw = 2048u16;
-        let _sample = meter.from_adc(raw);
-        info!("Sample");
-        Timer::after(Duration::from_millis(500)).await;
+        info!("Hello from task1!");
+        Timer::after(Duration::from_secs(1)).await;
     }
 }

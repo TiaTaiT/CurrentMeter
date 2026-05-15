@@ -1,3 +1,4 @@
+# File: /app_firmware/Cargo.toml
 [package]
 name = "app_firmware"
 version.workspace = true
@@ -8,14 +9,14 @@ license.workspace = true
 defmt = "1.1.0"
 defmt-rtt = "1.2"
 app_core = { path = "../app_core" }
-cortex-m.workspace = true
-cortex-m-rt.workspace = true
-critical-section.workspace = true
 panic-halt.workspace = true
-static_cell.workspace = true
 embassy-executor = { version = "0.10.0", features = ["executor-thread", "platform-cortex-m"] }
-embassy-time = { version = "0.5", default-features = false, features = ["tick-hz-32_768"] }
-embassy-stm32 = { version = "0.6", default-features = false, features = ["time-driver-any", "time", "exti", "stm32f051r8", "memory-x"] }
+embassy-time = { version = "0.5.0" }
+embassy-stm32 = { version = "0.6.0", features = ["stm32l052c8", "time-driver-any", "memory-x", "unstable-pac", "exti"] }
+embassy-sync = { version = "0.8" }
+cortex-m = { version = "0.7.7", features = ["critical-section-single-core"] }
+cortex-m-rt = "0.7.5"
+static_cell = "2"
 
 [[bin]]
 name = "app_firmware"
