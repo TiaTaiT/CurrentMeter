@@ -40,7 +40,7 @@ async fn task1(mut leds: StatusLeds) {
 }
 
 #[embassy_executor::task]
-async fn task2(mut sensors: SystemSensor, mut store: StoredValues) {
+async fn task2(mut sensors: SystemSensor, store: StoredValues) {
     loop {
         let currents = sensors.read_currents().await;
         let voltages = sensors.read_voltages().await;
