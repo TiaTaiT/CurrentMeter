@@ -3,3 +3,5 @@
 
 pub mod hardware_traits;
 pub mod adc_converter;
+#[cfg(test)]
+pub mod tests;
