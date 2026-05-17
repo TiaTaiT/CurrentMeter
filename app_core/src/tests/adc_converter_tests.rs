@@ -1,8 +1,7 @@
 #[cfg(test)]
 mod tests {
-use crate::adc_converter::StoredValues;
-
-use super::*;
+    use crate::adc_converter::StoredValues;
+    use core::assert_eq;
 
     #[test]
     fn test_new_initializes_with_zeros() {
