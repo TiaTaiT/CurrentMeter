@@ -2,6 +2,8 @@
 use app_core::hardware_traits::{LedControl, PowerState};
 use embassy_stm32::gpio::Output;
 
+use crate::hardware::apply_state;
+
 pub struct StatusLeds {
     pub(crate) sys_led: Output<'static>,
 }
@@ -14,9 +16,3 @@ impl LedControl for StatusLeds {
     fn set_system(&mut self, state: PowerState) { StatusLeds::set_sys_led(self, state); }
 }
 
-fn apply_state(pin: &mut Output<'static>, state: PowerState) {
-    match state {
-        PowerState::On => pin.set_high(),
-        PowerState::Off => pin.set_low(),
-    }
-}

@@ -12,7 +12,8 @@ use embassy_stm32::{
     usart
 };
 
-use crate::hardware::{StatusLeds, SystemSensor};
+use crate::hardware::{StatusLeds, SystemSensor, modem::{ModemControl, ModemRx, ModemTx}};
+use embassy_stm32::usart::{Config as UartConfig, Uart};
 
 bind_interrupts!(struct Irqs {
     ADC1_COMP => adc::InterruptHandler<ADC1>;
@@ -24,6 +25,9 @@ bind_interrupts!(struct Irqs {
 pub struct Hardware {
     pub leds: StatusLeds,
     pub sensors: SystemSensor,
+    pub modem_tx: ModemTx,
+    pub modem_rx: ModemRx,
+    pub modem_ctrl: ModemControl,
 }
 
 pub fn init() -> Hardware {
@@ -55,8 +59,31 @@ pub fn init() -> Hardware {
         voltages: [p.PA2.degrade_adc(), p.PA3.degrade_adc(), p.PB0.degrade_adc(), p.PB1.degrade_adc()],
         adc,
     };
+
+    let mut config_u1 = UartConfig::default();
+    config_u1.baudrate = 9600;
+    let (modem_tx, modem_rx) = Uart::new(
+        p.USART1,
+        p.PA10,
+        p.PA9,
+        p.DMA1_CH2,
+        p.DMA1_CH3,
+        Irqs,
+        config_u1,
+    ).unwrap().split();
+
+    let modem_tx = ModemTx(modem_tx);
+    let modem_rx = ModemRx(modem_rx);
+
+    let modem_ctrl = ModemControl {
+        enable: Output::new(p.PB4, Level::High, Speed::Low),
+    };
+
     Hardware {
         leds,
         sensors,
+        modem_tx,
+        modem_rx,
+        modem_ctrl,
     }
 }
