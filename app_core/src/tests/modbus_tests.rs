@@ -2,7 +2,7 @@
 mod tests {
     use crate::adc_converter::MeasurementSnapshot;
     use crate::constants::MODBUS_SLAVE_ADDR;
-use crate::modbus::{
+    use crate::modbus::{
         ILLEGAL_DATA_ADDRESS, ILLEGAL_FUNCTION, READ_INPUT_REGISTERS, build_exception_response,
         crc16, handle_request, parse_read_input_registers_request,
     };
