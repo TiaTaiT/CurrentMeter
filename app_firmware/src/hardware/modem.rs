@@ -23,6 +23,14 @@ impl ModemControl {
     pub fn set_enable(&mut self, state: PowerState) {
         apply_state(&mut self.enable, state);
     }
+
+    pub fn set_transmit_mode(&mut self) {
+        self.set_enable(PowerState::On);
+    }
+
+    pub fn set_receive_mode(&mut self) {
+        self.set_enable(PowerState::Off);
+    }
 }
 
 impl ModemControlInterface for ModemControl {
