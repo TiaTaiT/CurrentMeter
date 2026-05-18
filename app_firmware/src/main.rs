@@ -2,10 +2,10 @@
 #![no_std]
 #![no_main]
 
-mod constants;
 mod hardware;
 
 use app_core::{
+    constants::MODBUS_SLAVE_ADDR,
     adc_converter::StoredValues,
     hardware_traits::{ModbusRxInterface, ModbusTxInterface, PowerState},
     modbus::{handle_request, RequestError},
@@ -17,7 +17,6 @@ use embassy_time::{Duration, Timer};
 use defmt_rtt as _;
 use panic_halt as _;
 
-use crate::constants::MODBUS_SLAVE_ADDR;
 use crate::hardware::{Hardware, StatusLeds, SystemSensor};
 
 static STORE: StoredValues = StoredValues::new();

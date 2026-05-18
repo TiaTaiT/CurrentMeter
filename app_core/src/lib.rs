@@ -9,5 +9,6 @@
 pub mod hardware_traits;
 pub mod adc_converter;
 pub mod modbus;
+pub mod constants;
 #[cfg(test)]
 pub mod tests;
