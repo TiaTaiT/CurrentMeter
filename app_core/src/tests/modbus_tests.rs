@@ -1,7 +1,8 @@
 #[cfg(test)]
 mod tests {
     use crate::adc_converter::MeasurementSnapshot;
-    use crate::modbus::{
+    use crate::constants::MODBUS_SLAVE_ADDR;
+use crate::modbus::{
         ILLEGAL_DATA_ADDRESS, ILLEGAL_FUNCTION, READ_INPUT_REGISTERS, build_exception_response,
         crc16, handle_request, parse_read_input_registers_request,
     };
@@ -25,26 +26,26 @@ mod tests {
 
     #[test]
     fn parse_valid_read_input_registers_request() {
-        let frame = request_frame(7, READ_INPUT_REGISTERS, 0x1000, 2);
+        let frame = request_frame(MODBUS_SLAVE_ADDR, READ_INPUT_REGISTERS, 0x1000, 2);
 
-        let request = parse_read_input_registers_request(&frame, 7).unwrap();
+        let request = parse_read_input_registers_request(&frame, MODBUS_SLAVE_ADDR).unwrap();
 
-        assert_eq!(request.slave, 7);
+        assert_eq!(request.slave, MODBUS_SLAVE_ADDR);
         assert_eq!(request.start_address, 0x1000);
         assert_eq!(request.quantity, 2);
     }
 
     #[test]
     fn handle_request_returns_input_register_values() {
-        let frame = request_frame(7, READ_INPUT_REGISTERS, 0x1000, 4);
+        let frame = request_frame(MODBUS_SLAVE_ADDR, READ_INPUT_REGISTERS, 0x1000, 4);
         let mut response = [0u8; 64];
 
-        let len = handle_request(&frame, 7, &snapshot(), &mut response)
+        let len = handle_request(&frame, MODBUS_SLAVE_ADDR, &snapshot(), &mut response)
             .unwrap()
             .unwrap();
 
         assert_eq!(len, 13);
-        assert_eq!(response[0], 7);
+        assert_eq!(response[0], MODBUS_SLAVE_ADDR);
         assert_eq!(response[1], READ_INPUT_REGISTERS);
         assert_eq!(response[2], 8);
         assert_eq!(&response[3..11], &[0, 120, 0, 121, 0, 122, 0, 123]);
@@ -52,10 +53,10 @@ mod tests {
 
     #[test]
     fn handle_request_reads_across_voltage_current_boundary() {
-        let frame = request_frame(7, READ_INPUT_REGISTERS, 0x1002, 4);
+        let frame = request_frame(MODBUS_SLAVE_ADDR, READ_INPUT_REGISTERS, 0x1002, 4);
         let mut response = [0u8; 64];
 
-        let len = handle_request(&frame, 7, &snapshot(), &mut response)
+        let len = handle_request(&frame, MODBUS_SLAVE_ADDR, &snapshot(), &mut response)
             .unwrap()
             .unwrap();
 
@@ -65,35 +66,36 @@ mod tests {
 
     #[test]
     fn handle_request_ignores_other_slave_address() {
-        let frame = request_frame(8, READ_INPUT_REGISTERS, 0x1000, 1);
+        let wrong_addr = MODBUS_SLAVE_ADDR + 1;
+        let frame = request_frame(wrong_addr, READ_INPUT_REGISTERS, 0x1000, 1);
         let mut response = [0u8; 64];
 
-        let result = handle_request(&frame, 7, &snapshot(), &mut response).unwrap();
+        let result = handle_request(&frame, MODBUS_SLAVE_ADDR, &snapshot(), &mut response).unwrap();
 
         assert_eq!(result, None);
     }
 
     #[test]
     fn handle_request_returns_illegal_function_exception() {
-        let frame = request_frame(7, 0x03, 0x1000, 1);
+        let frame = request_frame(MODBUS_SLAVE_ADDR, 0x03, 0x1000, 1);
         let mut response = [0u8; 64];
 
-        let len = handle_request(&frame, 7, &snapshot(), &mut response)
+        let len = handle_request(&frame, MODBUS_SLAVE_ADDR, &snapshot(), &mut response)
             .unwrap()
             .unwrap();
 
         assert_eq!(len, 5);
-        assert_eq!(response[0], 7);
+        assert_eq!(response[0], MODBUS_SLAVE_ADDR);
         assert_eq!(response[1], 0x83);
         assert_eq!(response[2], ILLEGAL_FUNCTION);
     }
 
     #[test]
     fn handle_request_returns_illegal_data_address_exception() {
-        let frame = request_frame(7, READ_INPUT_REGISTERS, 0x1007, 2);
+        let frame = request_frame(MODBUS_SLAVE_ADDR, READ_INPUT_REGISTERS, 0x1007, 2);
         let mut response = [0u8; 64];
 
-        let len = handle_request(&frame, 7, &snapshot(), &mut response)
+        let len = handle_request(&frame, MODBUS_SLAVE_ADDR, &snapshot(), &mut response)
             .unwrap()
             .unwrap();
 
@@ -105,7 +107,7 @@ mod tests {
     #[test]
     fn build_exception_response_appends_crc() {
         let mut response = [0u8; 5];
-        let len = build_exception_response(7, READ_INPUT_REGISTERS, ILLEGAL_DATA_ADDRESS, &mut response)
+        let len = build_exception_response(MODBUS_SLAVE_ADDR, READ_INPUT_REGISTERS, ILLEGAL_DATA_ADDRESS, &mut response)
             .unwrap();
 
         assert_eq!(len, 5);
