@@ -102,6 +102,14 @@ pub fn parse_read_input_registers_request(
     })
 }
 
+pub fn get_register_value(snapshot: &MeasurementSnapshot, address: u16) -> Option<u16> {
+    match address {
+        0x1000..=0x1003 => Some(snapshot.voltages[(address - 0x1000) as usize]),
+        0x1004..=0x1007 => Some(snapshot.currents[(address - 0x1004) as usize]),
+        _ => None,
+    }
+}
+
 pub fn build_read_input_registers_response(
     request: ReadInputRegistersRequest,
     snapshot: &MeasurementSnapshot,
@@ -119,8 +127,7 @@ pub fn build_read_input_registers_response(
 
     for index in 0..request.quantity as usize {
         let address = request.start_address + index as u16;
-        let value = snapshot
-            .input_register(address)
+        let value = get_register_value(snapshot, address)
             .ok_or(RequestError::IllegalDataAddress)?;
         let bytes = value.to_be_bytes();
         let offset = 3 + index * 2;

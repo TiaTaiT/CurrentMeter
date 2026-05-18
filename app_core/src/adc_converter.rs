@@ -17,13 +17,6 @@ impl MeasurementSnapshot {
         Self::new([0; 4], [0; 4])
     }
 
-    pub fn input_register(&self, address: u16) -> Option<u16> {
-        match address {
-            0x1000..=0x1003 => Some(self.voltages[(address - 0x1000) as usize]),
-            0x1004..=0x1007 => Some(self.currents[(address - 0x1004) as usize]),
-            _ => None,
-        }
-    }
 }
 
 pub struct StoredValues {
