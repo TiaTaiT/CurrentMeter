@@ -76,7 +76,7 @@ pub fn init() -> Hardware {
     let modem_rx = ModemRx(modem_rx);
 
     let modem_ctrl = ModemControl {
-        enable: Output::new(p.PB4, Level::High, Speed::Low),
+        enable: Output::new(p.PA8, Level::High, Speed::Low),
     };
 
     Hardware {

@@ -64,7 +64,11 @@ impl ModemControlInterface for ModemControl {
 
 impl ModbusTxInterface for ModemTx {
     async fn write(&mut self, buf: &[u8]) -> Result<(), ()> {
-        self.0.write(buf).await.map_err(|_| ())
+        // 1. Write the buffer using DMA
+        self.0.write(buf).await.map_err(|_| ())?;
+        
+        // 2. Wait until the hardware shift register has finished transmitting
+        self.0.flush().await.map_err(|_| ())
     }
 }
 
