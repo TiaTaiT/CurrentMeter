@@ -1,4 +1,4 @@
-use core::{cell::Cell, default::Default, option::Option};
+use core::{cell::Cell, default::Default};
 
 unsafe impl Sync for StoredValues {}
 
