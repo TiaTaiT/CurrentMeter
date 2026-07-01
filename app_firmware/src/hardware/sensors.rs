@@ -16,14 +16,14 @@ impl SystemSensor {
         let c1 = self.adc.read(&mut self.currents[1], SampleTime::CYCLES160_5).await;
         let c2 = self.adc.read(&mut self.currents[2], SampleTime::CYCLES160_5).await;
         let c3 = self.adc.read(&mut self.currents[3], SampleTime::CYCLES160_5).await;
-        [c0, c1, c2, c3]
+        [c1, c2, c3, c0]
     }
     pub async fn read_voltages(&mut self) -> [u16; 4] {
         let v0 = self.adc.read(&mut self.voltages[0], SampleTime::CYCLES160_5).await;
         let v1 = self.adc.read(&mut self.voltages[1], SampleTime::CYCLES160_5).await;
         let v2 = self.adc.read(&mut self.voltages[2], SampleTime::CYCLES160_5).await;
         let v3 = self.adc.read(&mut self.voltages[3], SampleTime::CYCLES160_5).await;
-        [v0, v1, v2, v3]
+        [v0, v3, v2, v1]
     }
 }
 
